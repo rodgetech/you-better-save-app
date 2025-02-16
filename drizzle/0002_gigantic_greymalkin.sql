@@ -1,0 +1,1 @@
+ALTER TABLE `user_setup` DROP COLUMN `payday_schedule`;

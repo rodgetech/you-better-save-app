@@ -11,23 +11,17 @@ import * as schema from "@/db/schema";
 import { DATABASE_NAME } from "../_layout";
 import { sql } from "drizzle-orm";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-interface UserSetup {
-  name: string;
-  motivation: string;
-  goal: number;
-  payday_schedule: string;
-}
+import { UserSetupInsert } from "@/db/schema";
+import { IconSymbol } from "@/components/ui/IconSymbol";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
-  const [userSetup, setUserSetup] = useState<UserSetup | null>(null);
+  const [userSetup, setUserSetup] = useState<UserSetupInsert | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState<UserSetup>({
+  const [formData, setFormData] = useState<UserSetupInsert>({
     name: "",
     motivation: "",
     goal: 0,
-    payday_schedule: "",
   });
 
   const db = drizzle(openDatabaseSync(DATABASE_NAME), { schema });
@@ -46,7 +40,6 @@ export default function ProfileScreen() {
         name: setup.name,
         motivation: setup.motivation,
         goal: setup.goal,
-        payday_schedule: setup.payday_schedule,
       };
       setUserSetup(userData);
       setFormData(userData);
@@ -65,7 +58,6 @@ export default function ProfileScreen() {
           name: formData.name,
           motivation: formData.motivation,
           goal: formData.goal,
-          payday_schedule: formData.payday_schedule,
           updated_at: new Date().toISOString(),
         })
         .where(sql`${schema.userSetupTable.id} = ${setup.id}`);
@@ -103,7 +95,12 @@ export default function ProfileScreen() {
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
           <Card>
             <View style={styles.section}>
-              <ThemedText type="subtitle">Name</ThemedText>
+              <View style={styles.labelContainer}>
+                <IconSymbol name="person.fill" size={16} color="#A1CEDC" />
+                <ThemedText type="subtitle" style={styles.label}>
+                  Name
+                </ThemedText>
+              </View>
               <TextInput
                 value={formData.name}
                 onChangeText={(text) =>
@@ -113,19 +110,36 @@ export default function ProfileScreen() {
               />
             </View>
 
+            <View style={styles.divider} />
+
             <View style={styles.section}>
-              <ThemedText type="subtitle">Savings Motivation</ThemedText>
+              <View style={styles.labelContainer}>
+                <IconSymbol name="heart.fill" size={16} color="#A1CEDC" />
+                <ThemedText type="subtitle" style={styles.label}>
+                  Savings Motivation
+                </ThemedText>
+              </View>
               <TextInput
                 value={formData.motivation}
                 onChangeText={(text) =>
                   setFormData({ ...formData, motivation: text })
                 }
-                style={styles.input}
+                style={[styles.input, styles.textArea]}
+                multiline={true}
+                numberOfLines={4}
+                textAlignVertical="top"
               />
             </View>
 
-            <View style={styles.section}>
-              <ThemedText type="subtitle">Savings Goal</ThemedText>
+            <View style={styles.divider} />
+
+            <View style={[styles.section, styles.lastSection]}>
+              <View style={styles.labelContainer}>
+                <IconSymbol name="star.fill" size={16} color="#A1CEDC" />
+                <ThemedText type="subtitle" style={styles.label}>
+                  Savings Goal
+                </ThemedText>
+              </View>
               <TextInput
                 value={formData.goal.toString()}
                 onChangeText={(text) =>
@@ -135,28 +149,16 @@ export default function ProfileScreen() {
                 style={styles.input}
               />
             </View>
-
-            <View style={[styles.section, styles.lastSection]}>
-              <ThemedText type="subtitle">Payday Schedule</ThemedText>
-              <TextInput
-                value={formData.payday_schedule}
-                onChangeText={(text) =>
-                  setFormData({ ...formData, payday_schedule: text })
-                }
-                style={styles.input}
-              />
-            </View>
           </Card>
+
+          <View style={styles.divider} />
 
           <View style={styles.buttonContainer}>
             <Button
               onPress={handleUpdate}
               style={styles.button}
               disabled={
-                !formData.name ||
-                !formData.motivation ||
-                !formData.goal ||
-                !formData.payday_schedule
+                !formData.name || !formData.motivation || !formData.goal
               }
             >
               Save Changes
@@ -190,34 +192,38 @@ export default function ProfileScreen() {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <Card>
           <View style={styles.section}>
-            <ThemedText type="subtitle" style={styles.label}>
-              Name
-            </ThemedText>
+            <View style={styles.labelContainer}>
+              <IconSymbol name="person.fill" size={16} color="#A1CEDC" />
+              <ThemedText type="subtitle" style={styles.label}>
+                Name
+              </ThemedText>
+            </View>
             <ThemedText style={styles.value}>{userSetup.name}</ThemedText>
           </View>
 
+          <View style={styles.divider} />
+
           <View style={styles.section}>
-            <ThemedText type="subtitle" style={styles.label}>
-              Savings Motivation
-            </ThemedText>
+            <View style={styles.labelContainer}>
+              <IconSymbol name="heart.fill" size={16} color="#A1CEDC" />
+              <ThemedText type="subtitle" style={styles.label}>
+                Savings Motivation
+              </ThemedText>
+            </View>
             <ThemedText style={styles.value}>{userSetup.motivation}</ThemedText>
           </View>
 
-          <View style={styles.section}>
-            <ThemedText type="subtitle" style={styles.label}>
-              Savings Goal
-            </ThemedText>
+          <View style={styles.divider} />
+
+          <View style={styles.lastSection}>
+            <View style={styles.labelContainer}>
+              <IconSymbol name="star.fill" size={16} color="#A1CEDC" />
+              <ThemedText type="subtitle" style={styles.label}>
+                Savings Goal
+              </ThemedText>
+            </View>
             <ThemedText style={styles.value}>
               ${userSetup.goal.toLocaleString()}
-            </ThemedText>
-          </View>
-
-          <View style={[styles.section, styles.lastSection]}>
-            <ThemedText type="subtitle" style={styles.label}>
-              Payday Schedule
-            </ThemedText>
-            <ThemedText style={styles.value}>
-              {userSetup.payday_schedule}
             </ThemedText>
           </View>
         </Card>
@@ -240,9 +246,6 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     paddingHorizontal: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
   },
   headerTitle: {
     fontSize: 34,
@@ -255,17 +258,30 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   section: {
-    marginBottom: 24,
+    paddingTop: 16,
+    paddingBottom: 16,
   },
   lastSection: {
-    marginBottom: 0,
+    paddingTop: 16,
+    paddingBottom: 16,
+  },
+  labelContainer: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 6,
   },
   label: {
-    marginBottom: 4,
-    opacity: 0.7,
+    fontSize: 14,
+    opacity: 0.6,
+    lineHeight: 14,
+    marginBottom: 0,
+    color: "#999",
   },
   value: {
-    fontSize: 17,
+    fontSize: 18,
+    fontWeight: "600",
+    lineHeight: 24,
+    marginTop: 8,
   },
   input: {
     marginTop: 8,
@@ -275,5 +291,14 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 12,
+  },
+  textArea: {
+    height: 100,
+    paddingTop: 12,
+  },
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: "#333",
+    marginHorizontal: -16,
   },
 });
