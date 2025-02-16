@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1739676059660,
+      "tag": "0000_moaning_green_goblin",
+      "breakpoints": true
+    }
+  ]
+}
