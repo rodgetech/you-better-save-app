@@ -45,7 +45,8 @@
     "expo-image-picker": "~16.0.6",
     "expo-image-manipulator": "~13.0.6",
     "expo-linear-gradient": "~14.0.2",
-    "react-native-svg": "15.8.0"
+    "react-native-svg": "15.8.0",
+    "expo-notifications": "~0.29.13"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

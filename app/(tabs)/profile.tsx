@@ -13,11 +13,16 @@ import { sql } from "drizzle-orm";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { UserSetupInsert } from "@/db/schema";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import {
+  triggerDebugNotification,
+  triggerDebugScheduledNotification,
+} from "@/utils/notifications";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const [userSetup, setUserSetup] = useState<UserSetupInsert | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [scheduledTime, setScheduledTime] = useState<string | null>(null);
   const [formData, setFormData] = useState<UserSetupInsert>({
     name: "",
     motivation: "",
@@ -231,6 +236,31 @@ export default function ProfileScreen() {
         <Button onPress={() => setIsEditing(true)} style={styles.button}>
           Edit Profile
         </Button>
+
+        {__DEV__ && (
+          <View style={styles.debugContainer}>
+            <Button
+              onPress={triggerDebugNotification}
+              style={styles.debugButton}
+            >
+              Test Immediate Notification
+            </Button>
+            <Button
+              onPress={async () => {
+                const time = await triggerDebugScheduledNotification();
+                setScheduledTime(time);
+              }}
+              style={styles.debugButton}
+            >
+              Test Scheduled Notification (10s)
+            </Button>
+            {scheduledTime && (
+              <ThemedText style={styles.debugText}>
+                Notification scheduled for: {scheduledTime}
+              </ThemedText>
+            )}
+          </View>
+        )}
       </ScrollView>
     </ThemedView>
   );
@@ -300,5 +330,17 @@ const styles = StyleSheet.create({
     height: StyleSheet.hairlineWidth,
     backgroundColor: "#333",
     marginHorizontal: -16,
+  },
+  debugContainer: {
+    marginTop: 20,
+    gap: 8,
+  },
+  debugButton: {
+    backgroundColor: "#666",
+  },
+  debugText: {
+    textAlign: "center",
+    opacity: 0.7,
+    fontSize: 12,
   },
 });

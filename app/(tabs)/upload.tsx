@@ -6,6 +6,7 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  Alert,
 } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -20,6 +21,7 @@ import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
 import { router } from "expo-router";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { cancelAllGuiltNotifications } from "@/utils/notifications";
 
 const MONTHS = [
   "January",
@@ -137,14 +139,38 @@ export default function UploadScreen() {
           date: transactionDate.toISOString(),
         });
 
-        alert("Transaction saved successfully!");
-        router.back();
+        // Calculate total saved this month to check if goal is met
+        const transactions = await db.query.transactionsTable.findMany({
+          where: (tx, { gte }) => gte(tx.date, transactionDate.toISOString()),
+        });
+
+        const totalSaved = transactions.reduce((sum, tx) => sum + tx.amount, 0);
+
+        // Get user's goal
+        const userSetup = await db.query.userSetupTable.findFirst({
+          orderBy: (users, { desc }) => [desc(users.created_at)],
+        });
+
+        // If goal is met, cancel guilt notifications
+        if (userSetup && totalSaved >= userSetup.goal) {
+          await cancelAllGuiltNotifications();
+        }
+
+        Alert.alert(
+          "Success! 🎉",
+          `Saved $${data.value.base_amount.toLocaleString()}`,
+          [{ text: "View Progress", onPress: () => router.back() }]
+        );
       } else {
         throw new Error("Could not extract amount from image");
       }
     } catch (error) {
       console.error("Error processing image:", error);
-      alert("Error processing image. Please try again.");
+      Alert.alert(
+        "Upload Failed",
+        "Could not process the image. Please make sure the amount is clearly visible and try again.",
+        [{ text: "Try Again", style: "default" }]
+      );
     } finally {
       setIsProcessing(false);
     }
