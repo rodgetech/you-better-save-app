@@ -7,6 +7,8 @@ import {
   Pressable,
   ScrollView,
   Alert,
+  Modal,
+  TouchableOpacity,
 } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -42,6 +44,7 @@ export default function UploadScreen() {
   const insets = useSafeAreaInsets();
   const [image, setImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isImageModalVisible, setIsImageModalVisible] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
     return { month: now.getMonth(), year: now.getFullYear() };
@@ -185,6 +188,9 @@ export default function UploadScreen() {
           <ThemedText type="title" style={styles.headerTitle}>
             Upload Proof
           </ThemedText>
+          <ThemedText style={styles.description}>
+            I need proof that you're actually saving money.
+          </ThemedText>
         </View>
       </View>
 
@@ -248,10 +254,38 @@ export default function UploadScreen() {
 
           {image ? (
             <View style={styles.imageContainer}>
-              <Image source={{ uri: image }} style={styles.image} />
+              <TouchableOpacity
+                onPress={() => setIsImageModalVisible(true)}
+                activeOpacity={0.9}
+                style={styles.imageWrapper}
+              >
+                <Image
+                  source={{ uri: image }}
+                  style={styles.image}
+                  resizeMode="cover"
+                />
+              </TouchableOpacity>
               <Button onPress={pickImage} style={styles.retakeButton}>
                 Choose Another
               </Button>
+
+              <Modal
+                animationType="fade"
+                transparent={true}
+                visible={isImageModalVisible}
+                onRequestClose={() => setIsImageModalVisible(false)}
+              >
+                <Pressable
+                  style={styles.modalOverlay}
+                  onPress={() => setIsImageModalVisible(false)}
+                >
+                  <Image
+                    source={{ uri: image }}
+                    style={styles.fullScreenImage}
+                    resizeMode="contain"
+                  />
+                </Pressable>
+              </Modal>
             </View>
           ) : (
             <Button onPress={pickImage} style={styles.button}>
@@ -284,8 +318,7 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     paddingHorizontal: 20,
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: "column",
     justifyContent: "space-between",
   },
   headerTitle: {
@@ -340,22 +373,47 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   imageContainer: {
-    alignItems: "center",
+    width: "100%",
     marginBottom: 16,
+  },
+  imageWrapper: {
+    width: "100%",
+    aspectRatio: 1.5,
+    backgroundColor: "#1c1c1e",
+    borderRadius: 12,
+    overflow: "hidden",
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   image: {
     width: "100%",
-    height: 200,
-    borderRadius: 12,
-    marginBottom: 16,
+    height: "100%",
   },
   button: {
     marginTop: 8,
   },
   retakeButton: {
     backgroundColor: "#666",
+    marginTop: 4,
   },
   processButton: {
     marginTop: 20,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.95)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  fullScreenImage: {
+    width: "100%",
+    height: "100%",
   },
 });

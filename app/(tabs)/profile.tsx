@@ -142,7 +142,7 @@ export default function ProfileScreen() {
               <View style={styles.labelContainer}>
                 <IconSymbol name="star.fill" size={16} color="#A1CEDC" />
                 <ThemedText type="subtitle" style={styles.label}>
-                  Savings Goal
+                  Monthly Savings Goal
                 </ThemedText>
               </View>
               <TextInput
@@ -203,7 +203,11 @@ export default function ProfileScreen() {
                 Name
               </ThemedText>
             </View>
-            <ThemedText style={styles.value}>{userSetup.name}</ThemedText>
+            <ThemedText
+              style={{ ...styles.value, fontSize: 16, lineHeight: 0 }}
+            >
+              {userSetup.name}
+            </ThemedText>
           </View>
 
           <View style={styles.divider} />
@@ -215,7 +219,11 @@ export default function ProfileScreen() {
                 Savings Motivation
               </ThemedText>
             </View>
-            <ThemedText style={styles.value}>{userSetup.motivation}</ThemedText>
+            <ThemedText
+              style={{ ...styles.value, fontSize: 16, lineHeight: 0 }}
+            >
+              {userSetup.motivation}
+            </ThemedText>
           </View>
 
           <View style={styles.divider} />
@@ -224,10 +232,12 @@ export default function ProfileScreen() {
             <View style={styles.labelContainer}>
               <IconSymbol name="star.fill" size={16} color="#A1CEDC" />
               <ThemedText type="subtitle" style={styles.label}>
-                Savings Goal
+                Monthly Savings Goal
               </ThemedText>
             </View>
-            <ThemedText style={styles.value}>
+            <ThemedText
+              style={{ ...styles.value, fontSize: 16, lineHeight: 0 }}
+            >
               ${userSetup.goal.toLocaleString()}
             </ThemedText>
           </View>
