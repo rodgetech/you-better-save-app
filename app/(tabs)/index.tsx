@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, ScrollView } from "react-native";
 import { Card } from "@/components/Card";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -45,6 +45,36 @@ const MONTHS = [
   "Oct",
   "Nov",
   "Dec",
+];
+
+const PROJECTIONS = [
+  {
+    months: 3,
+    amount: (goal: number) => goal * 3,
+    messages: [
+      "You could buy a decent used car 🚗",
+      "That's a solid emergency fund 🏦",
+      "You could take a nice vacation ✈️",
+    ],
+  },
+  {
+    months: 6,
+    amount: (goal: number) => goal * 6,
+    messages: [
+      "You're getting closer to a house down payment 🏠",
+      "That's a serious investment portfolio start 📈",
+      "You could start a small business 💼",
+    ],
+  },
+  {
+    months: 12,
+    amount: (goal: number) => goal * 12,
+    messages: [
+      "You're building real wealth now 💎",
+      "Financial freedom is within reach 🎯",
+      "That's a life-changing amount of savings 🌟",
+    ],
+  },
 ];
 
 interface UserSetup {
@@ -93,6 +123,10 @@ export default function HomeScreen() {
     return `${MONTHS[today.getMonth()]} ${lastDayOfMonth.getDate()}`;
   };
 
+  const getRandomMessage = (messages: string[]) => {
+    return messages[Math.floor(Math.random() * messages.length)];
+  };
+
   if (!userSetup) {
     return (
       <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
@@ -134,7 +168,11 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      <View style={styles.content}>
+      <ScrollView
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}
+      >
         <Card>
           <View style={styles.goalSection}>
             <View style={styles.progressCircle}>
@@ -213,7 +251,33 @@ export default function HomeScreen() {
             </ThemedText>
           </Card>
         </View>
-      </View>
+
+        <View style={styles.projectionsContainer}>
+          <View style={{ ...styles.labelContainer, marginBottom: 12 }}>
+            <IconSymbol name="sparkles" size={20} color="#A1CEDC" />
+            <ThemedText style={{ ...styles.projectionsLabel, lineHeight: 0 }}>
+              Your Savings Journey Ahead
+            </ThemedText>
+          </View>
+
+          {PROJECTIONS.map((projection) => (
+            <Card key={projection.months} style={styles.projectionCard}>
+              <View style={styles.projectionHeader}>
+                <ThemedText style={styles.projectionTime}>
+                  In {projection.months}{" "}
+                  {projection.months === 1 ? "month" : "months"}
+                </ThemedText>
+                <ThemedText style={styles.projectionAmount}>
+                  ${projection.amount(userSetup.goal).toLocaleString()}
+                </ThemedText>
+              </View>
+              <ThemedText style={styles.projectionMessage}>
+                {getRandomMessage(projection.messages)}
+              </ThemedText>
+            </Card>
+          ))}
+        </View>
+      </ScrollView>
     </ThemedView>
   );
 }
@@ -242,7 +306,10 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  contentContainer: {
     padding: 20,
+    paddingBottom: 120,
   },
   goalSection: {
     flexDirection: "row",
@@ -308,5 +375,36 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "600",
     marginTop: 4,
+  },
+  projectionsContainer: {
+    marginTop: 24,
+  },
+  projectionsLabel: {
+    fontSize: 16,
+    opacity: 0.8,
+    fontWeight: "600",
+  },
+  projectionCard: {
+    marginBottom: 12,
+    padding: 16,
+  },
+  projectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+    marginBottom: 4,
+  },
+  projectionTime: {
+    fontSize: 14,
+    opacity: 0.6,
+  },
+  projectionAmount: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#A1CEDC",
+  },
+  projectionMessage: {
+    fontSize: 16,
+    opacity: 0.8,
   },
 });
